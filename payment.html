@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title> bookmy show| Payment</title>
+
+<style>
+body{
+    font-family:Arial, sans-serif;
+    background:#f5f6f7;
+    margin:0;
+}
+
+/* LAYOUT */
+.container{
+    display:flex;
+    gap:20px;
+    padding:20px;
+}
+
+/* LEFT */
+.left{
+    width:25%;
+    background:white;
+    border-radius:6px;
+    padding:15px;
+}
+.option{
+    padding:10px;
+    border-bottom:1px solid #eee;
+}
+
+/* CENTER */
+.center{
+    width:45%;
+    background:white;
+    border-radius:6px;
+    padding:20px;
+}
+.upi-box{
+    border:1px solid #ddd;
+    padding:15px;
+    border-radius:6px;
+    margin-top:10px;
+}
+
+/* CONTACT FORM */
+.form-box{
+    margin-top:15px;
+}
+label{
+    font-size:13px;
+    font-weight:bold;
+}
+input{
+    width:100%;
+    padding:8px;
+    margin:5px 0 10px;
+    border:1px solid #ccc;
+    border-radius:4px;
+}
+
+/* RIGHT */
+.right{
+    width:30%;
+    background:white;
+    border-radius:6px;
+    padding:15px;
+}
+.amount{
+    font-size:18px;
+    font-weight:bold;
+    margin-top:10px;
+}
+.contact{
+    margin-top:15px;
+    font-size:13px;
+    background:#f9f9f9;
+    padding:10px;
+    border-radius:6px;
+}
+
+/* BUTTON */
+.pay-btn{
+    width:100%;
+    margin-top:15px;
+    padding:12px;
+    background:#e50914;
+    color:white;
+    border:none;
+    border-radius:4px;
+    font-size:16px;
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+<script>
+if(!localStorage.getItem("user")){
+    window.location.href = "login.html";
+}
+</script>
+
+<div class="container">
+
+<!-- LEFT -->
+<div class="left">
+    <h4>Payment options</h4>
+    <div class="option">💳 Debit / Credit Card</div>
+    <div class="option">📱 UPI</div>
+    <div class="option">👛 Mobile Wallets</div>
+    <div class="option">🏦 Net Banking</div>
+    <div class="option">🎁 Gift Voucher</div>
+    <div class="option">⏳ Pay Later</div>
+</div>
+
+<!-- CENTER -->
+<div class="center">
+    <h4>Pay by any UPI App</h4>
+
+    <div class="upi-box">
+        ✅ Google Pay<br>
+        ➕ Add new UPI ID
+    </div>
+
+    <p style="text-align:center;margin:15px 0;">OR</p>
+
+    <div class="upi-box">
+        📷 Scan QR Code
+    </div>
+
+    <!-- CUSTOMER DETAILS -->
+    <div class="form-box">
+        <h4>Contact Details</h4>
+
+        <label>Customer Name *</label>
+        <input type="text" id="name" placeholder="Enter your name">
+
+        <label>Email *</label>
+        <input type="email" id="email">
+
+        <label>Mobile *</label>
+        <input type="text" id="mobile" maxlength="10">
+    </div>
+</div>
+
+<!-- RIGHT -->
+<div class="right">
+    <h4 id="movieName"></h4>
+
+    <div>
+        <div id="showDetails"></div>
+        <div id="seatDetails"></div>
+        <div id="theatreDetails"></div>
+
+        <hr>
+
+        <div class="amount">
+            Amount Payable: ₹<span id="amount"></span>
+        </div>
+    </div>
+
+    <div class="contact">
+        <strong>Booking Details Sent To</strong><br>
+        <span id="summaryName"></span><br>
+        <span id="summaryMobile"></span><br>
+        <span id="summaryEmail"></span>
+    </div>
+
+    <button class="pay-btn" onclick="payNow()">Pay Now</button>
+</div>
+
+</div>
+
+<script>
+/* AUTO-FILL */
+document.getElementById("email").value =
+    localStorage.getItem("email") || localStorage.getItem("user") || "";
+
+document.getElementById("mobile").value =
+    localStorage.getItem("mobile") || "";
+
+document.getElementById("name").value =
+    localStorage.getItem("name") || "";
+
+/* SUMMARY DATA */
+document.getElementById("movieName").innerText =
+    localStorage.getItem("movie") || "Movie";
+
+document.getElementById("showDetails").innerText =
+    (localStorage.getItem("date") || "") + " | " +
+    (localStorage.getItem("time") || "");
+
+document.getElementById("seatDetails").innerText =
+    "Seats: " + (JSON.parse(localStorage.getItem("seats")) || []).join(", ");
+
+document.getElementById("theatreDetails").innerText =
+    localStorage.getItem("theatre") || "Theatre";
+
+let seatCount = (JSON.parse(localStorage.getItem("seats")) || []).length;
+let pricePerSeat = 120;
+document.getElementById("amount").innerText = seatCount * pricePerSeat;
+
+/* PAY */
+function payNow(){
+    let name = document.getElementById("name").value.trim();
+    let email = document.getElementById("email").value.trim();
+    let mobile = document.getElementById("mobile").value.trim();
+
+    if(name === "" || !email.includes("@") || !/^[6-9]\d{9}$/.test(mobile)){
+        alert("Please enter valid customer details");
+        return;
+    }
+
+    localStorage.setItem("name", name);
+    localStorage.setItem("email", email);
+    localStorage.setItem("mobile", mobile);
+
+    document.getElementById("summaryName").innerText = name;
+    document.getElementById("summaryEmail").innerText = email;
+    document.getElementById("summaryMobile").innerText = mobile;
+
+    alert("Payment Successful!");
+    window.location.href = "bill.html";
+}
+</script>
+
+</body>
+</html>

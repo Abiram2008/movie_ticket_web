@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>bookmy show | Select Seats</title>
+
+<style>
+    @media (max-width:600px){
+    .seat{
+        width:12px;
+        height:12px;
+        font-size:6px;
+    }
+    .seats{
+        overflow-x:auto;
+    }
+    .screen{
+        width:60%;
+    }
+}
+
+body{
+    font-family: Arial, sans-serif;
+    background:#f5f6f7;
+    margin:0;
+}
+
+/* HEADER */
+.header{
+    background:white;
+    padding:12px;
+    text-align:center;
+    box-shadow:0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* DATE */
+.dates span{
+    display:inline-block;
+    padding:6px 10px;
+    margin:4px;
+    border:1px solid #ccc;
+    cursor:pointer;
+    font-size:12px;
+}
+.dates .active{
+    background:#e50914;
+    color:white;
+}
+
+/* TIME */
+.times{
+    margin-top:8px;
+}
+.time-btn{
+    padding:6px 14px;
+    margin:4px;
+    border:1px solid #000000;
+    background:rgb(255, 255, 255);
+    color:#2ecc71;
+    border-radius:4px;
+    cursor:pointer;
+}
+.time-btn.active{
+    background:#2ecc71;
+    color:white;
+}
+
+/* TIMER */
+#timerBox{
+    text-align:center;
+    font-size:14px;
+    font-weight:bold;
+    color:#e50914;
+    margin:10px;
+}
+
+/* SCREEN */
+.screen-wrapper{
+    text-align:center;
+    margin:15px 0 25px;
+}
+.screen-text{
+    font-size:12px;
+    color:#666;
+    letter-spacing:2px;
+}
+.screen{
+    width:30%;
+    height:6px;
+    margin:5px auto;
+    background:#dcdcdc;
+    border-radius:0 0 25px 25px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.3);
+}
+
+/* CENTER SEAT AREA */
+.main{
+    display:flex;
+    justify-content:center;
+    margin:20px;
+}
+
+/* ROW LABELS */
+.rows{
+    margin-right:6px;
+}
+.row-label{
+    height:10px;
+    font-size:9px;
+    margin:2px 0;
+    color:#555;
+}
+
+/* SEATS */
+.seats{
+    background:white;
+    padding:12px;
+    border-radius:6px;
+}
+
+.seat{
+    width:10px;
+    height:10px;
+    border:1px solid #2ecc71;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    margin:0.5px;
+    border-radius:2px;
+    cursor:pointer;
+    font-size:5px;
+    font-weight:bold;
+    color:#2ecc71;
+}
+
+.available{ background:white; }
+.selected{
+    background:#2ecc71;
+    color:white;
+}
+.sold{
+    background:#e74c3c;
+    border-color:#e74c3c;
+    color:white;
+    cursor:not-allowed;
+}
+
+.aisle{
+    display:inline-block;
+    width:16px;
+}
+
+/* LEGEND */
+.legend{
+    text-align:center;
+    margin:12px;
+    font-size:12px;
+}
+.box{
+    display:inline-block;
+    width:10px;
+    height:10px;
+    margin-right:4px;
+    vertical-align:middle;
+}
+
+/* FOOTER */
+.footer{
+    text-align:center;
+    padding:15px;
+}
+button{
+    padding:10px 20px;
+    background:#e50914;
+    color:white;
+    border:none;
+    border-radius:4px;
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+<script>
+if(!localStorage.getItem("user")){
+    window.location.href = "login.html";
+}
+</script>
+
+<!-- HEADER -->
+<div class="header">
+    <h3>Select Date, Time & Seats</h3>
+
+    <div class="dates">
+        <span class="active">SUN</span>
+        <span>MON</span>
+        <span>TUE</span>
+        <span>WED</span>
+        <span>THU</span>
+    </div>
+
+    <div class="times">
+        <button class="time-btn active">10:00 AM</button>
+        <button class="time-btn">02:30 PM</button>
+        <button class="time-btn">06:30 PM</button>
+        <button class="time-btn">10:00 PM</button>
+    </div>
+</div>
+
+<!-- TIMER -->
+<div id="timerBox">
+    ⏰ Time left: <span id="timer">05:00</span>
+</div>
+
+<!-- SCREEN -->
+<div class="screen-wrapper">
+    <div class="screen-text">SCREEN THIS WAY</div>
+    <div class="screen"></div>
+</div>
+
+<!-- SEATS -->
+<div class="main">
+    <div class="rows" id="rowLabels"></div>
+    <div class="seats" id="seatArea"></div>
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+    <span><span class="box" style="border:1px solid #2ecc71"></span>Available</span>
+    <span><span class="box" style="background:#2ecc71"></span>Selected</span>
+    <span><span class="box" style="background:#e74c3c"></span>Sold</span>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    <button onclick="proceed()">Proceed to Payment</button>
+</div>
+
+<script>
+/* 5 MINUTE TIMER */
+let timeLeft = 300;
+function startTimer(){
+    let t = document.getElementById("timer");
+    let interval = setInterval(()=>{
+        let m = Math.floor(timeLeft / 60);
+        let s = timeLeft % 60;
+        t.innerText =
+            String(m).padStart(2,'0') + ":" +
+            String(s).padStart(2,'0');
+        timeLeft--;
+
+        if(timeLeft < 0){
+            clearInterval(interval);
+            alert("Time expired! Seats released.");
+            location.reload();
+        }
+    },1000);
+}
+startTimer();
+
+/* 20 ROWS × 25 COLUMNS = 500 SEATS */
+let rows = "ABCDEFGHIJKLMNOPQRST".split("");
+let seatArea = document.getElementById("seatArea");
+let rowLabels = document.getElementById("rowLabels");
+let selectedSeats = [];
+
+/* ROW LABELS */
+rows.forEach(r=>{
+    let d=document.createElement("div");
+    d.className="row-label";
+    d.innerText=r;
+    rowLabels.appendChild(d);
+});
+
+/* SEAT GENERATION (3 BLOCKS: 8 + 9 + 8) */
+rows.forEach(r=>{
+    for(let i=1;i<=8;i++) createSeat(r+i);
+    seatArea.appendChild(createAisle());
+
+    for(let i=9;i<=17;i++) createSeat(r+i);
+    seatArea.appendChild(createAisle());
+
+    for(let i=18;i<=25;i++) createSeat(r+i);
+
+    seatArea.appendChild(document.createElement("br"));
+});
+
+/* CREATE SEAT WITH NUMBER */
+function createSeat(label){
+    let s=document.createElement("div");
+    s.className="seat available";
+    s.innerText = label.replace(/[A-Z]/g, "");
+
+    s.onclick=()=>{
+        if(s.classList.contains("sold")) return;
+
+        if(s.classList.contains("available")){
+            if(selectedSeats.length >= 6){
+                alert("Maximum 6 seats only");
+                return;
+            }
+            s.className="seat selected";
+            selectedSeats.push(label);
+        }
+        else if(s.classList.contains("selected")){
+            s.className="seat available";
+            selectedSeats = selectedSeats.filter(x=>x!==label);
+        }
+    };
+    seatArea.appendChild(s);
+}
+
+function createAisle(){
+    let a=document.createElement("span");
+    a.className="aisle";
+    return a;
+}
+
+/* RANDOM SOLD SEATS (10%) */
+function markSoldSeats(){
+    let allSeats=document.querySelectorAll(".seat");
+    let soldCount=Math.floor(allSeats.length * 0.1);
+    for(let i=0;i<soldCount;i++){
+        let seat=allSeats[Math.floor(Math.random()*allSeats.length)];
+        if(seat.classList.contains("available")){
+            seat.className="seat sold";
+        }
+    }
+}
+markSoldSeats();
+
+/* DATE & TIME ACTIVE */
+document.querySelectorAll(".dates span").forEach(d=>{
+    d.onclick=()=>{
+        document.querySelector(".dates .active").classList.remove("active");
+        d.classList.add("active");
+    };
+});
+document.querySelectorAll(".time-btn").forEach(t=>{
+    t.onclick=()=>{
+        document.querySelector(".time-btn.active").classList.remove("active");
+        t.classList.add("active");
+    };
+});
+
+/* PROCEED */
+function proceed(){
+    if(selectedSeats.length === 0){
+        alert("Please select at least 1 seat");
+        return;
+    }
+    localStorage.setItem("seats", JSON.stringify(selectedSeats));
+    localStorage.setItem("date", document.querySelector(".dates .active").innerText);
+    localStorage.setItem("time", document.querySelector(".time-btn.active").innerText);
+    window.location.href="payment.html";
+}
+</script>
+
+</body>
+</html>
